@@ -1,39 +1,54 @@
-
-
 // Newton's Law of Cooling/Heating Calculation
 document.getElementById('coolingHeatingForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
+    // Get input values
     const T0 = parseFloat(document.getElementById('initialTemp').value); // Initial Temperature
     const Ts = parseFloat(document.getElementById('roomTemp').value); // Room Temperature
-    const finalTempInput = document.getElementById('finalTemp').value; // Final Temperature
+    const finalTempInput = document.getElementById('finalTemp').value; // Final Temperature (optional)
     const t = parseFloat(document.getElementById('time').value); // Time
-    const kInput = document.getElementById('coolingRate').value; // Cooling/Heating Rate
+    const kInput = document.getElementById('coolingRate').value; // Cooling/Heating Rate (optional)
+
+    // Validate required inputs
+    if (isNaN(T0) || isNaN(Ts) || isNaN(t)) {
+        alert("Please fill in all required fields: Initial Temperature, Room Temperature, and Time.");
+        return;
+    }
+
+    let k, finalTemp;
 
     // Check if k is provided
-    let k;
     if (kInput === "") {
-        // Calculate k if it is missing
+        // Calculate k if final temperature is provided
         if (finalTempInput === "") {
             alert("Please provide either k or Final Temperature (T) to calculate.");
-            return; // Exit if neither k nor final temperature is provided
+            return;
         }
-        
-        const finalTemp = parseFloat(finalTempInput); // Final Temperature
-        k = -Math.log((finalTemp - Ts) / (T0 - Ts)) / t;
+        finalTemp = parseFloat(finalTempInput);
+        if (isNaN(finalTemp)) {
+            alert("Invalid Final Temperature value.");
+            return;
+        }
+        k = -Math.log(Math.abs((finalTemp - Ts) / (T0 - Ts))) / t;
         document.getElementById('CoolingHeatingResult').textContent = `Calculated Cooling/Heating Rate (k): ${k.toFixed(4)}`;
     } else {
         // Parse k from input
         k = parseFloat(kInput);
-        
-        // Check if final temperature is provided
+        if (isNaN(k)) {
+            alert("Invalid Cooling/Heating Rate value.");
+            return;
+        }
+
+        // Calculate final temperature if not provided
         if (finalTempInput === "") {
-            // Calculate the final temperature using the formula T(t) = Ts + (T0 - Ts) * e^(-kt)
-            const calculatedFinalTemp = Ts + (T0 - Ts) * Math.exp(-k * t);
-            document.getElementById('CoolingHeatingResult').textContent = `Calculated Final Temperature (T): ${calculatedFinalTemp.toFixed(2)}°C`;
+            finalTemp = Ts + (T0 - Ts) * Math.exp(k * t);
+            document.getElementById('CoolingHeatingResult').textContent = `Calculated Final Temperature (T): ${finalTemp.toFixed(2)}°C`;
         } else {
-            const finalTemp = parseFloat(finalTempInput); // Final Temperature
-            // Display the final temperature if both k and final temperature are provided
+            finalTemp = parseFloat(finalTempInput);
+            if (isNaN(finalTemp)) {
+                alert("Invalid Final Temperature value.");
+                return;
+            }
             document.getElementById('CoolingHeatingResult').textContent = `Final Temperature (T): ${finalTemp}°C (k: ${k})`;
         }
     }
@@ -43,36 +58,52 @@ document.getElementById('coolingHeatingForm').addEventListener('submit', functio
 document.getElementById('growthDecayForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
+    // Get input values
     const P0 = parseFloat(document.getElementById('initialValue').value); // Initial Value
-    const kInput = document.getElementById('rate').value; // Growth/Decay Rate
-    const finalValueInput = document.getElementById('finalValue').value; // Final Value
+    const kInput = document.getElementById('rate').value; // Growth/Decay Rate (optional)
+    const finalValueInput = document.getElementById('finalValue').value; // Final Value (optional)
     const t = parseFloat(document.getElementById('timeGrowth').value); // Time
 
+    // Validate required inputs
+    if (isNaN(P0) || isNaN(t)) {
+        alert("Please fill in all required fields: Initial Value and Time.");
+        return;
+    }
+
+    let k, finalValue;
+
     // Check if k is provided
-    let k;
     if (kInput === "") {
-        // If k is not provided, check if final value is provided
+        // Calculate k if final value is provided
         if (finalValueInput === "") {
             alert("Please provide either k or Final Value (P) to calculate.");
-            return; // Exit if neither k nor final value is provided
+            return;
         }
-
-        const finalValue = parseFloat(finalValueInput); // Final Value
-        // Calculate k using the formula P = P0 * e^(kt) => k = (ln(P/P0)) / t
-        k = Math.log(finalValue / P0) / t;
+        finalValue = parseFloat(finalValueInput);
+        if (isNaN(finalValue)) {
+            alert("Invalid Final Value.");
+            return;
+        }
+        k = Math.log(Math.abs(finalValue / P0)) / t;
         document.getElementById('GrowthDecayResult').textContent = `Calculated Growth/Decay Rate (k): ${k.toFixed(4)}`;
     } else {
         // Parse k from input
         k = parseFloat(kInput);
-        
-        // Check if final value is provided
+        if (isNaN(k)) {
+            alert("Invalid Growth/Decay Rate value.");
+            return;
+        }
+
+        // Calculate final value if not provided
         if (finalValueInput === "") {
-            // Calculate the final value using the formula P = P0 * e^(kt)
-            const result = P0 * Math.exp(k * t);
-            document.getElementById('GrowthDecayResult').textContent = `Calculated Final Value (P): ${result.toFixed(2)}`;
+            finalValue = P0 * Math.exp(k * t);
+            document.getElementById('GrowthDecayResult').textContent = `Calculated Final Value (P): ${finalValue.toFixed(2)}`;
         } else {
-            const finalValue = parseFloat(finalValueInput); // Final Value
-            // Display the final value if both k and final value are provided
+            finalValue = parseFloat(finalValueInput);
+            if (isNaN(finalValue)) {
+                alert("Invalid Final Value.");
+                return;
+            }
             document.getElementById('GrowthDecayResult').textContent = `Final Value (P): ${finalValue} (k: ${k})`;
         }
     }
